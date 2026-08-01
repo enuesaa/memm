@@ -10,28 +10,18 @@ use ratatui::{prelude::*, widgets::*};
 
 struct App {
     input: String,
-    commands: Vec<&'static str>,
+    items: Vec<(i32, String)>,
     filtered: Vec<usize>,
     selected: usize,
 }
 
 impl App {
-    fn new() -> Self {
-        let commands = vec![
-            "Search Logs",
-            "Deploy",
-            "Settings",
-            "SeaORM Generate",
-            "Create Project",
-            "Delete Project",
-            "Open Config",
-            "Help",
-        ];
-        let filtered = (0..commands.len()).collect();
+    fn new(items: Vec<(i32, String)>) -> Self {
+        let filtered = (0..items.len()).collect();
 
         Self {
             input: String::new(),
-            commands,
+            items,
             filtered,
             selected: 0,
         }
@@ -41,10 +31,10 @@ impl App {
         let q = self.input.to_lowercase();
 
         self.filtered = self
-            .commands
+            .items
             .iter()
             .enumerate()
-            .filter(|(_, cmd)| cmd.to_lowercase().contains(&q))
+            .filter(|(_, (_, title))| title.to_lowercase().contains(&q))
             .map(|(i, _)| i)
             .collect();
 
@@ -73,10 +63,10 @@ impl App {
         }
     }
 
-    fn selected_command(&self) -> Option<&str> {
+    fn selected_item(&self) -> Option<&(i32, String)> {
         self.filtered
             .get(self.selected)
-            .map(|i| self.commands[*i])
+            .map(|i| &self.items[*i])
     }
 }
 
@@ -95,11 +85,11 @@ fn ui(frame: &mut Frame, app: &App) {
     let items: Vec<ListItem> = app
         .filtered
         .iter()
-        .map(|i| ListItem::new(app.commands[*i]))
+        .map(|i| ListItem::new(app.items[*i].1.clone()))
         .collect();
 
     let list = List::new(items)
-        .block(Block::bordered().title("Commands"))
+        .block(Block::bordered().title("Memos"))
         .highlight_symbol("❯ ")
         .highlight_style(Style::default().reversed());
 
@@ -109,7 +99,7 @@ fn ui(frame: &mut Frame, app: &App) {
     frame.render_stateful_widget(list, areas[1], &mut state);
 }
 
-pub fn run_search() -> Result<String> {
+pub fn run_search(items: Vec<(i32, String)>) -> Result<(i32, String)> {
     enable_raw_mode()?;
 
     let mut out = stdout();
@@ -118,7 +108,7 @@ pub fn run_search() -> Result<String> {
     let backend = CrosstermBackend::new(out);
     let mut terminal = Terminal::new(backend)?;
 
-    let mut app = App::new();
+    let mut app = App::new(items);
 
     loop {
         terminal.draw(|f| ui(f, &app))?;
@@ -155,8 +145,8 @@ pub fn run_search() -> Result<String> {
     disable_raw_mode()?;
     execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
 
-    if let Some(cmd) = app.selected_command() {
-        return Ok(cmd.to_string());
+    if let Some(item) = app.selected_item() {
+        return Ok(item.clone());
     }
     return Err(anyhow!("notselected"));
 }
