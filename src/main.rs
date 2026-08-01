@@ -1,4 +1,7 @@
+mod search;
 use clap::{ArgAction, Parser};
+
+use crate::search::run_search;
 
 #[derive(Parser, Debug)]
 #[command(version = "v0.0.1", disable_help_flag = true, disable_version_flag = true)]
@@ -21,5 +24,7 @@ async fn main() -> Result<(), sea_orm::DbErr> {
     let db = sea_orm::Database::connect("sqlite://app.db?mode=rwc").await?;
     println!("Connected");
     let _ = db;
+
+    let _ = run_search();
     Ok(())
 }
