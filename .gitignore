@@ -4,3 +4,6 @@
 
 # rust
 /target
+
+# app
+*.db

@@ -5,16 +5,21 @@ use clap::{ArgAction, Parser};
 struct Args {
     #[arg(long, help = "Port", default_value_t = 2999)]
     port: u16,
-    
+
     #[arg(long, action = ArgAction::Help, help = "Print help")]
-    help: bool,
+    help: Option<bool>,
 
     #[arg(long, action = ArgAction::Version, help = "Print version")]
-    version: bool,
+    version: Option<bool>,
 }
 
-fn main() {
+#[tokio::main]
+async fn main() -> Result<(), sea_orm::DbErr> {
     let args = Args::parse();
-
     println!("{args:?}");
+
+    let db = sea_orm::Database::connect("sqlite://app.db?mode=rwc").await?;
+    println!("Connected");
+    let _ = db;
+    Ok(())
 }
