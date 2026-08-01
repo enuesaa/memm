@@ -1,7 +1,7 @@
 mod search;
 use clap::{ArgAction, Parser};
-
 use crate::search::run_search;
+use anyhow::Result;
 
 #[derive(Parser, Debug)]
 #[command(version = "v0.0.1", disable_help_flag = true, disable_version_flag = true)]
@@ -17,14 +17,15 @@ struct Args {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), sea_orm::DbErr> {
+async fn main() -> Result<()> {
     let args = Args::parse();
     println!("{args:?}");
 
-    let db = sea_orm::Database::connect("sqlite://app.db?mode=rwc").await?;
+    let _ = sea_orm::Database::connect("sqlite://app.db?mode=rwc").await?;
     println!("Connected");
-    let _ = db;
 
-    let _ = run_search();
+    if let Ok(selected) = run_search() {
+        println!("Selected: {:?}", selected);
+    }
     Ok(())
 }

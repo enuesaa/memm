@@ -1,14 +1,12 @@
-use std::io::{self, stdout};
+use std::io::stdout;
 
+use anyhow::{Result, anyhow};
 use crossterm::{
     event::{self, Event, KeyCode},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
-use ratatui::{
-    prelude::*,
-    widgets::*,
-};
+use ratatui::{prelude::*, widgets::*};
 
 struct App {
     input: String,
@@ -29,7 +27,6 @@ impl App {
             "Open Config",
             "Help",
         ];
-
         let filtered = (0..commands.len()).collect();
 
         Self {
@@ -112,7 +109,7 @@ fn ui(frame: &mut Frame, app: &App) {
     frame.render_stateful_widget(list, areas[1], &mut state);
 }
 
-pub fn run_search() -> io::Result<()> {
+pub fn run_search() -> Result<String> {
     enable_raw_mode()?;
 
     let mut out = stdout();
@@ -132,30 +129,24 @@ pub fn run_search() -> io::Result<()> {
                     app.input.push(c);
                     app.filter();
                 }
-
                 KeyCode::Backspace => {
                     app.input.pop();
                     app.filter();
                 }
-
                 KeyCode::Up => {
                     app.prev();
                 }
-
                 KeyCode::Down => {
                     app.next();
                 }
-
                 KeyCode::Enter => {
                     break;
                 }
-
                 KeyCode::Esc => {
                     disable_raw_mode()?;
                     execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
-                    return Ok(());
+                    return Err(anyhow!("notselected"));
                 }
-
                 _ => {}
             }
         }
@@ -165,8 +156,7 @@ pub fn run_search() -> io::Result<()> {
     execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
 
     if let Some(cmd) = app.selected_command() {
-        println!("Selected: {}", cmd);
+        return Ok(cmd.to_string());
     }
-
-    Ok(())
+    return Err(anyhow!("notselected"));
 }
