@@ -99,7 +99,7 @@ fn ui(frame: &mut Frame, app: &App) {
     frame.render_stateful_widget(list, areas[1], &mut state);
 }
 
-pub fn run_search(items: Vec<(i32, String)>) -> Result<(i32, String)> {
+pub fn search(items: Vec<(i32, String)>) -> Result<(i32, String)> {
     enable_raw_mode()?;
 
     let mut out = stdout();

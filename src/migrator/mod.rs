@@ -1,4 +1,6 @@
+use sea_orm::DatabaseConnection;
 use sea_orm_migration::prelude::*;
+use anyhow::Result;
 
 mod m20250801_000002_create_memos_table;
 
@@ -9,4 +11,9 @@ impl MigratorTrait for Migrator {
     fn migrations() -> Vec<Box<dyn MigrationTrait>> {
         vec![Box::new(m20250801_000002_create_memos_table::Migration)]
     }
+}
+
+pub async fn migrate(db: &DatabaseConnection) -> Result<()> {
+    Migrator::up(db, None).await?;
+    Ok(())
 }
