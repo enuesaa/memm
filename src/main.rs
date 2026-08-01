@@ -1,6 +1,10 @@
 mod search;
+mod migrator;
+
 use clap::{ArgAction, Parser};
 use crate::search::run_search;
+use crate::migrator::Migrator;
+use sea_orm_migration::MigratorTrait;
 use anyhow::Result;
 
 #[derive(Parser, Debug)]
@@ -21,8 +25,11 @@ async fn main() -> Result<()> {
     let args = Args::parse();
     println!("{args:?}");
 
-    let _ = sea_orm::Database::connect("sqlite://app.db?mode=rwc").await?;
+    let db = sea_orm::Database::connect("sqlite://app.db?mode=rwc").await?;
     println!("Connected");
+
+    Migrator::up(&db, None).await?;
+    println!("Migrated");
 
     if let Ok(selected) = run_search() {
         println!("Selected: {:?}", selected);
