@@ -16,7 +16,9 @@ async fn main() -> Result<()> {
 
     fs::mk_data_dir()?;
 
-    let db = sea_orm::Database::connect("sqlite://app.db?mode=rwc").await?;
+    let dburi = fs::get_db_uri()?;
+    println!("dburi: {}", dburi);
+    let db = sea_orm::Database::connect(dburi).await?;
     migrator::migrate(&db).await?;
     println!("Migrated");
 
