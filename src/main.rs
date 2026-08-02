@@ -3,6 +3,7 @@ mod migrator;
 mod entities;
 mod cli;
 mod repositories;
+mod fs;
 
 use anyhow::Result;
 use clap::Parser;
@@ -12,6 +13,8 @@ use repositories::memos::MemoRepository;
 async fn main() -> Result<()> {
     let args = cli::Args::parse();
     println!("{args:?}");
+
+    fs::mk_data_dir()?;
 
     let db = sea_orm::Database::connect("sqlite://app.db?mode=rwc").await?;
     migrator::migrate(&db).await?;
