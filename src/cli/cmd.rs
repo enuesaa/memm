@@ -12,8 +12,6 @@ pub struct Args {
 
 #[derive(Subcommand, Debug)]
 pub enum Command {
-    /// init
-    Init,
     /// Search memos (default)
     Search,
     /// Add a new memo

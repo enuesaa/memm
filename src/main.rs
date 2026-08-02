@@ -13,22 +13,15 @@ use repositories::memos::MemoRepository;
 async fn main() -> Result<()> {
     let args = cli::Args::parse();
 
-    // if !fs::is_db_exist() {
-    //     println!("db file not found.");
-    //     println!("please run: memm init");
-    //     return Ok(());
-    // }
-
+    if !fs::is_data_dir_exist()? {
+        fs::mk_data_dir()?;
+    }
     let dburi = fs::get_db_uri()?;
     let db = sea_orm::Database::connect(dburi).await?;
+    migrator::migrate(&db).await?;
+    println!("Migrated");
 
     match args.command.unwrap_or(cli::Command::Search) {
-        cli::Command::Init => {
-            fs::mk_data_dir()?;
-            migrator::migrate(&db).await?;
-            println!("Migrated");
-        }
-
         cli::Command::Search => {
             let memo_list = MemoRepository::find_all(&db).await?;
             let items: Vec<(i32, String)> = memo_list
