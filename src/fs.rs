@@ -36,3 +36,15 @@ pub fn get_db_uri() -> Result<String> {
     let uri = format!("sqlite://{}?mode=rwc", path.to_string_lossy());
     Ok(uri)
 }
+
+pub fn is_db_exist() -> bool {
+    if !is_data_dir_exist().unwrap_or(false) {
+        return false;
+    }
+    if let Ok(dbfilepath) = get_db_file_path() {
+        if fs::exists(dbfilepath).unwrap_or(false) {
+            return true;
+        }
+    }
+    return false;
+}
