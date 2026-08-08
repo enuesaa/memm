@@ -7,7 +7,7 @@ use sea_orm::{
     Set,
 };
 
-use crate::entities::memos;
+use crate::db::entities::memos;
 
 pub struct MemoRepository;
 
